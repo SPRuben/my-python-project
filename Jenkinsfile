@@ -16,6 +16,7 @@ pipeline {
             parallel {
                 stage('Flake8') {
                     steps {
+                        script {
                         try{
                             sh '''
                                 python3 --version
@@ -25,11 +26,13 @@ pipeline {
                         } catch (Exception e) {
                             echo "Flake8 failed: ${e.getMessage()}"
                         }
+                        }
                     }
                 }
 
                 stage('Unit Tests') {
                     steps {
+                        script {
                         try{
                             sh '''
                                 pytest | tee report.txt
@@ -38,6 +41,7 @@ pipeline {
                                 echo "Unit tests failed: ${e.getMessage()}"
                         } finally {
                             archiveArtifacts artifacts: 'report.txt', fingerprint: true
+                        }
                         }
                     }
                 }
