@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    
+    parameters {
+        // Define a boolean parameter for the user to choose if Docker should run
+        booleanParam(name: 'RUN_DOCKER', defaultValue: true, description: 'Run the Docker build and push stage')
+    }
+
     environment {
         DOCKER_LOGIN = 'rubenssp'
     }
@@ -29,6 +35,9 @@ pipeline {
                 }
             
                 stage('Docker') {
+                    when {
+                        expression { return params.RUN_DOCKER } // Only run Docker stage if the user selects 'true'
+                    }
                     steps {
                         script {
                             withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
