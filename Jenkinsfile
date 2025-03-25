@@ -7,7 +7,8 @@ pipeline {
 
     environment {
         DOCKER_LOGIN = 'rubenssp'
-        DOCKER_IMAGE_TAG = "$BUILD_NUMBER"  // Tag for Docker image based on the build number
+        DOCKER_IMAGE = 'rubenssp/my-python'  // Store the Docker image name in a variable
+        DOCKER_IMAGE_TAG = "$BUILD_NUMBER"   // Tag for Docker image based on the build number
     }
 
     stages {
@@ -40,8 +41,8 @@ pipeline {
                         withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
                             sh '''
                                 echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin
-                                docker build -t rubenssp/my-python:$DOCKER_IMAGE_TAG .
-                                docker push rubenssp/my-python:$DOCKER_IMAGE_TAG
+                                docker build -t $DOCKER_IMAGE:$DOCKER_IMAGE_TAG .
+                                docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
                             '''
                         }
                     }
