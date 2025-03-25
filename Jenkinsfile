@@ -38,7 +38,8 @@ pipeline {
                                     pytest | tee report.txt
                                 '''
                             } catch (Exception e) {
-                                    echo "Unit tests failed: ${e.getMessage()}"
+                                echo "Unit tests failed: ${e.getMessage()}"
+                                currentBuild.result = 'FAILURE'
                             } finally {
                                 archiveArtifacts artifacts: 'report.txt', fingerprint: true
                             }
