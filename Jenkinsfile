@@ -41,8 +41,8 @@ pipeline {
                     steps {
                         script {
                             withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
-                                sh 'docker build -t rubenssp/my-python:$BUILD_NUMBER .'
                                 sh 'echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin'
+                                sh 'docker build -t rubenssp/my-python:$BUILD_NUMBER .'
                                 sh 'docker push rubenssp/my-python:$BUILD_NUMBER'
                             }
                         }
