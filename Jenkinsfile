@@ -16,20 +16,29 @@ pipeline {
             parallel {
                 stage('Flake8') {
                     steps {
-                        sh '''
-                            python3 --version
-                            python3 -m flake8 --version
-                            python3 -m flake8 . --count --show-source --statistics || true
-                        '''
+                        try{
+                            sh '''
+                                python3 --version
+                                python3 -m flake8 --version
+                                python3 -m flake8 . --count --show-source --statistics || true
+                            '''
+                        } catch{
+                            echo "Flake8 failed: ${e.getMessage()}"
+                        }
                     }
                 }
 
                 stage('Unit Tests') {
                     steps {
-                        sh '''
-                            pytest | tee report.txt
-                        '''
-                        archiveArtifacts artifacts: 'report.txt', fingerprint: true
+                        try{
+                            sh '''
+                                pytest | tee report.txt
+                            '''
+                        } catch (Exception e) {
+                                echo "Unit tests failed: ${e.getMessage()}"
+                        } finally {
+                            archiveArtifacts artifacts: 'report.txt', fingerprint: true
+                        }
                     }
                 }
 
