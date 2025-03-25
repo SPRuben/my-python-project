@@ -22,9 +22,6 @@ pipeline {
                 stage('Unit Tests') {
                     steps {
                         script {
-                            // Uncomment if dependencies need to be installed
-                            // sh 'pip install -r requirements.txt'
-                            // sh 'pip install pytest'
                             sh 'pytest | tee report.txt'
                             archiveArtifacts artifacts: 'report.txt', fingerprint: true
                         }
