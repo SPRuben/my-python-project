@@ -46,27 +46,26 @@ pipeline {
                         }
                     }
                 }
-
-                stage('Docker') {
-                    //when {
-                    //    expression { return params.RUN_DOCKER }  // Only run if the user selects 'true'
-                    //}
-                    steps {
-                        script {
-                            try {
-                                withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
-                                    sh '''
-                                        echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin
-                                        docker build -t $DOCKER_IMAGE:$DOCKER_IMAGE_TAG .
-                                        docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
-                                    '''
-                                }
-                            } catch (Exception e) {
-                                currentBuild.result = 'FAILURE'
-                                echo "Docker build/push failed: ${e.getMessage()}"
-                                throw e  // Re-throw to fail the stage
-                            }
+            }
+        }
+        stage('Docker') {
+            //when {
+            //    expression { return params.RUN_DOCKER }  // Only run if the user selects 'true'
+            //}
+            steps {
+                script {
+                    try {
+                        withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
+                            sh '''
+                                echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin
+                                docker build -t $DOCKER_IMAGE:$DOCKER_IMAGE_TAG .
+                                docker push $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
+                            '''
                         }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        echo "Docker build/push failed: ${e.getMessage()}"
+                        throw e  // Re-throw to fail the stage
                     }
                 }
             }
