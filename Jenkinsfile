@@ -1,50 +1,48 @@
 pipeline {
     agent any
 
-    
     parameters {
-        // Define a boolean parameter for the user to choose if Docker should run
         booleanParam(name: 'RUN_DOCKER', defaultValue: true, description: 'Run the Docker build and push stage')
     }
 
     environment {
         DOCKER_LOGIN = 'rubenssp'
+        DOCKER_IMAGE_TAG = "$BUILD_NUMBER"  // Tag for Docker image based on the build number
     }
 
     stages {
-
         stage('Parallel') {
             parallel {
                 stage('Flake8') {
                     steps {
-                        script {
-                            sh 'python3 --version'
-                            sh 'python3 -m flake8 --version'
-                            sh 'python3 -m flake8 . --count --show-source --statistics || true'
-                        }
+                        sh '''
+                            python3 --version
+                            python3 -m flake8 --version
+                            python3 -m flake8 . --count --show-source --statistics || true
+                        '''
                     }
                 }
 
                 stage('Unit Tests') {
                     steps {
-                        script {
-                            sh 'pytest | tee report.txt'
-                            archiveArtifacts artifacts: 'report.txt', fingerprint: true
-                        }
+                        sh '''
+                            pytest | tee report.txt
+                        '''
+                        archiveArtifacts artifacts: 'report.txt', fingerprint: true
                     }
                 }
-            
+
                 stage('Docker') {
                     when {
-                        expression { return params.RUN_DOCKER } // Only run Docker stage if the user selects 'true'
+                        expression { return params.RUN_DOCKER }  // Only run if the user selects 'true'
                     }
                     steps {
-                        script {
-                            withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
-                                sh 'echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin'
-                                sh 'docker build -t rubenssp/my-python:$BUILD_NUMBER .'
-                                sh 'docker push rubenssp/my-python:$BUILD_NUMBER'
-                            }
+                        withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
+                            sh '''
+                                echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin
+                                docker build -t rubenssp/my-python:$DOCKER_IMAGE_TAG .
+                                docker push rubenssp/my-python:$DOCKER_IMAGE_TAG
+                            '''
                         }
                     }
                 }
