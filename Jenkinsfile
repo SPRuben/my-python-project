@@ -22,7 +22,7 @@ pipeline {
                                 python3 -m flake8 --version
                                 python3 -m flake8 . --count --show-source --statistics || true
                             '''
-                        } catch{
+                        } catch (Exception e) {
                             echo "Flake8 failed: ${e.getMessage()}"
                         }
                     }
