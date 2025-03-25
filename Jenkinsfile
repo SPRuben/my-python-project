@@ -6,13 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Init') {
-            steps {
-                script {
-                    env.BUILD_VERSION = "1.0.${BUILD_NUMBER}" // Définition dynamique
-                }
-            }
-        }
 
         stage('Parallel') {
             parallel {
@@ -44,9 +37,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'DOCKER_PASSWORD_RS', variable: 'DOCKER_PASS')]) {
-                        sh 'docker build -t rubenssp/my-python:${env.BUILD_VERSION} .'
+                        sh 'docker build -t rubenssp/my-python:$BUILD_NUMBER .'
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_LOGIN --password-stdin'
-                        sh 'docker push rubenssp/my-python:${env.BUILD_VERSION}'
+                        sh 'docker push rubenssp/my-python:$BUILD_NUMBER'
                     }
                 }
             }
